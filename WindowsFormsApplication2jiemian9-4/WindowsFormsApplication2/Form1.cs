@@ -858,13 +858,10 @@ namespace WindowsFormsApplication2
                         testDocIsOpen = true;
                         testDoc = handleDocument.openDocument(testFileName, testWord);
                     }
-                    KeyWord keyWord = new KeyWord();
-                    keyWord.highLightRichString(rbTableTest, testWord, testDoc);
-                    rtbStandard.Text = keyWord.getStandardList();
 
                     regDoc = handleDocument.openDocument(name, testWord);
                     showItemInfo.Clear();
-
+                    flagList.Clear();//清空标记合并单元格的标志
                     if (tablename != "")
                     {
                         calTables(1, regDoc, wf, tablename);
@@ -873,6 +870,12 @@ namespace WindowsFormsApplication2
                     {
                         calTables(tableName.Length, regDoc, wf, "");
                     }
+                    rbTableTest.Text = "请选择关键字";
+                    KeyWord keyWord = new KeyWord();
+                    //keyWord.highLightRichString(rbTableTest, testWord, testDoc, keyItemList);
+                    rtbStandard.Text = keyWord.getStandardList();
+                    generatekeyItemCombox();
+                    
                     Object saveChanges = false;
                     object unknow = Type.Missing;
 
@@ -899,6 +902,7 @@ namespace WindowsFormsApplication2
             }
 
         }
+        private List<string> keyItemList = new List<string>();
         private void calTables(int number, Document regDoc, WaitingForm wf, string tName)
         {
             for (int i = 0; i < number; i++)
@@ -934,8 +938,30 @@ namespace WindowsFormsApplication2
                     MessageBox.Show(testDoc.Name + "中:\r\r" + title + "不符合标准格式，无法计算");
                     continue;
                 }
-                calTable.calTableShowMssing(comTable, normalTable, dataView, showItemInfo, title);
+
+                List<string> keyList=calTable.calTableShowMssing(comTable, normalTable, dataView, showItemInfo, title,flagList);
+                generateKeyItemList(keyList);
             }
+        }
+        private void generatekeyItemCombox()
+        {
+            foreach (string s in keyItemList)
+            {
+                keyTableItemList.Items.Add(s);
+            }
+        }
+        private void generateKeyItemList(List<string> keyList)
+        {
+            if (keyList.Count != 0)
+            {
+                foreach (string s in keyList)
+                {
+                    if (!keyItemList.Contains(s))
+                    {
+                        keyItemList.Add(s);
+                    }
+                }
+            }           
         }
 
         private bool keywordChanged = false;
@@ -1074,6 +1100,176 @@ namespace WindowsFormsApplication2
         private void cbxTableList_TextChanged(object sender, EventArgs e)
         {
             cbxTableListChanged = true;
+        }
+
+        #region 统计行单元格绘制
+        private List<int> flagList = new List<int>();
+        private void dataView_CellPainting(object sender, DataGridViewCellPaintingEventArgs e)
+        {
+            
+             if (e.ColumnIndex != -1 && isInList(e.RowIndex))
+             {
+                 using
+                     (
+                     Brush gridBrush = new SolidBrush(this.dataView.GridColor),
+                     backColorBrush = new SolidBrush(e.CellStyle.BackColor)
+                     )
+                 {
+                     using (Pen gridLinePen = new Pen(gridBrush))
+                     {
+                         try
+                         {
+                             // 清除单元格
+                             if (e.Value != null)
+                             {
+                                 e.CellStyle.Font = new System.Drawing.Font(dataView.DefaultCellStyle.Font, FontStyle.Regular);
+                                 e.CellStyle.WrapMode = DataGridViewTriState.True;
+                                 e.Graphics.FillRectangle(backColorBrush, e.CellBounds);
+
+                                 e.Handled = true;
+
+                                 // 画 Grid 边线（仅画单元格的底边线和右边线）
+                                 //   如果下一列和当前列的数据不同，则在当前的单元格画一条右边线
+                                 if (e.ColumnIndex < dataView.Columns.Count - 1 &&
+                                 (dataView.Rows[e.RowIndex].Cells[e.ColumnIndex + 1].Value == null || dataView.Rows[e.RowIndex].Cells[e.ColumnIndex + 1].Value.ToString() !=
+                                 e.Value.ToString()  ))
+                                     e.Graphics.DrawLine(gridLinePen, e.CellBounds.Right - 1,
+                                     e.CellBounds.Top - 1, e.CellBounds.Right - 1,
+                                     e.CellBounds.Bottom - 1);
+                                 //画最后一条记录的右边线 
+                                 if (e.ColumnIndex == dataView.Columns.Count - 1)
+                                     e.Graphics.DrawLine(gridLinePen, e.CellBounds.Right - 1, e.CellBounds.Top - 1, e.CellBounds.Right - 1, e.CellBounds.Bottom - 1);
+                                 //画底边线
+                                 e.Graphics.DrawLine(gridLinePen, e.CellBounds.Left - 1,
+                                 e.CellBounds.Bottom - 1, e.CellBounds.Right - 1,
+                                 e.CellBounds.Bottom - 1);
+                             }
+
+
+                             // 画（填写）单元格内容，相同的内容的单元格只填写第一个
+                             if (e.Value != null)
+                             {
+                                 if (e.ColumnIndex == dataView.Columns.Count - 1
+                                      && dataView.Rows[e.RowIndex].Cells[e.ColumnIndex - 1].Value.ToString() !=e.Value.ToString())
+                                 {
+                                     e.Graphics.DrawString(e.Value.ToString(), e.CellStyle.Font,
+                                         Brushes.Black, e.CellBounds.Left ,
+                                         e.CellBounds.Top+4 , StringFormat.GenericDefault);
+                                 }
+                                 if (e.ColumnIndex > 0 &&
+                                 dataView.Rows[e.RowIndex].Cells[e.ColumnIndex +1].Value.ToString() ==
+                                 e.Value.ToString())
+                                 {
+                                     e.Graphics.DrawString(e.Value.ToString(), e.CellStyle.Font,
+                                           Brushes.Black, e.CellBounds.Left ,
+                                           e.CellBounds.Top+4, StringFormat.GenericDefault);
+                                 }
+                                 if (e.ColumnIndex > 0 &&
+                                 dataView.Rows[e.RowIndex].Cells[e.ColumnIndex + 1].Value.ToString() !=
+                                 e.Value.ToString() && dataView.Rows[e.RowIndex].Cells[e.ColumnIndex - 1].Value.ToString() !=
+                                 e.Value.ToString())
+                                 {
+                                     e.Graphics.DrawString(e.Value.ToString(), e.CellStyle.Font,
+                                           Brushes.Black, e.CellBounds.Left,
+                                           e.CellBounds.Top+4, StringFormat.GenericDefault);
+                                 }
+
+                             }
+                             //e.Handled = true;
+                         }
+                         catch
+                         {
+                         }
+                     }
+                 }
+
+
+             }
+             if (e.ColumnIndex == 0 && (isInList(e.RowIndex)||isInList(e.RowIndex-1)) && e.Value != null)
+             {
+                 if (isInList(e.RowIndex))
+                 {
+                     e.CellStyle.Font = new System.Drawing.Font(dataView.DefaultCellStyle.Font, FontStyle.Bold);
+                     e.CellStyle.WrapMode = DataGridViewTriState.True;
+                 }
+                 using (
+                     Brush gridBrush = new SolidBrush(this.dataView.GridColor),
+                     backColorBrush = new SolidBrush(e.CellStyle.BackColor))
+                 {
+                     using (Pen gridLinePen = new Pen(gridBrush))
+                     {
+                         // 擦除原单元格背景
+                         e.Graphics.FillRectangle(backColorBrush, e.CellBounds);
+                         ////绘制线条,这些线条是单元格相互间隔的区分线条,
+                         ////因为我们只对列name做处理,所以datagridview自己会处理左侧和上边缘的线条
+                         if (e.RowIndex != 0 && this.dataView.Rows[e.RowIndex - 1].Cells[e.ColumnIndex].Value!=null)
+                         {
+                             if (e.Value.ToString() != this.dataView.Rows[e.RowIndex - 1].Cells[e.ColumnIndex].Value.ToString())
+                             {
+                                 e.Graphics.DrawLine(gridLinePen, e.CellBounds.Left, e.CellBounds.Top - 1,
+                                 e.CellBounds.Right - 1, e.CellBounds.Top - 1);//上边缘的线
+                                 e.Handled = true;
+                                 //绘制值
+                                 if (e.Value != null)
+                                 {
+                                     e.Graphics.DrawString((String)e.Value, e.CellStyle.Font,
+                                         Brushes.Black, e.CellBounds.Left,
+                                         e.CellBounds.Top + 4, StringFormat.GenericDefault);
+                                 }
+                             }
+                         }
+                         else
+                         {
+                             //e.Graphics.DrawLine(gridLinePen, e.CellBounds.Left, e.CellBounds.Bottom - 1,
+                             //e.CellBounds.Right - 1, e.CellBounds.Bottom - 1);//下边缘的线
+                             //绘制值
+                             if (e.Value != null)
+                             {
+                                 e.Graphics.DrawString((String)e.Value, e.CellStyle.Font,
+                                     Brushes.Black, e.CellBounds.Left,
+                                     e.CellBounds.Top + 4, StringFormat.GenericDefault);
+                             }
+                         }
+                         if (isInList(e.RowIndex - 1))
+                         {
+                             e.Graphics.DrawLine(gridLinePen, e.CellBounds.Left, e.CellBounds.Bottom - 1,
+                             e.CellBounds.Right - 1, e.CellBounds.Bottom - 1);//下边缘的线
+                         }
+                         //右侧的线
+                         e.Graphics.DrawLine(gridLinePen, e.CellBounds.Right - 1,
+                             e.CellBounds.Top, e.CellBounds.Right - 1,
+                             e.CellBounds.Bottom - 1);
+                         e.Handled = true;
+                     }
+                 }
+             }
+        }
+        #endregion
+        private Boolean isInList(int index)
+        {
+
+            if(flagList.Contains(index))
+            {
+                return true;
+            }
+            return false;
+        }
+
+        private void keyTableItemList_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            WaitingForm wf = new WaitingForm();
+            HandleWaitingForm.startWaitingForm(wf);
+            List<string> list = new List<string>();
+            if (!testDocIsOpen)
+            {
+                testDocIsOpen = true;
+                testDoc = handleDocument.openDocument(testFileName, testWord);
+            }
+            list.Add((string)keyTableItemList.SelectedItem);
+            KeyWord keyWord = new KeyWord();
+            keyWord.highLightRichString(rbTableTest, testWord, testDoc,list);
+
+            HandleWaitingForm.closeWaitingForm(wf);
         }
     }
 }

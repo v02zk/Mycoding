@@ -165,6 +165,7 @@ namespace WindowsFormsApplication2
             this.label9 = new System.Windows.Forms.Label();
             this.多文档查询ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
+            this.keyTableItemList = new System.Windows.Forms.ComboBox();
             this.tabControlFunction.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tabPage2.SuspendLayout();
@@ -721,6 +722,7 @@ namespace WindowsFormsApplication2
             // tabCalculateTable
             // 
             this.tabCalculateTable.BackColor = System.Drawing.Color.WhiteSmoke;
+            this.tabCalculateTable.Controls.Add(this.keyTableItemList);
             this.tabCalculateTable.Controls.Add(this.label21);
             this.tabCalculateTable.Controls.Add(this.label20);
             this.tabCalculateTable.Controls.Add(this.label19);
@@ -739,7 +741,7 @@ namespace WindowsFormsApplication2
             // 
             this.label21.AutoSize = true;
             this.label21.Font = new System.Drawing.Font("微软雅黑", 9F);
-            this.label21.Location = new System.Drawing.Point(16, 292);
+            this.label21.Location = new System.Drawing.Point(15, 8);
             this.label21.Name = "label21";
             this.label21.Size = new System.Drawing.Size(92, 17);
             this.label21.TabIndex = 6;
@@ -779,7 +781,7 @@ namespace WindowsFormsApplication2
             // 
             this.label17.AutoSize = true;
             this.label17.Font = new System.Drawing.Font("微软雅黑", 9F);
-            this.label17.Location = new System.Drawing.Point(16, 22);
+            this.label17.Location = new System.Drawing.Point(12, 331);
             this.label17.Name = "label17";
             this.label17.Size = new System.Drawing.Size(104, 17);
             this.label17.TabIndex = 2;
@@ -789,23 +791,28 @@ namespace WindowsFormsApplication2
             // 
             this.rbTableTest.BackColor = System.Drawing.SystemColors.Control;
             this.rbTableTest.Font = new System.Drawing.Font("楷体", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.rbTableTest.Location = new System.Drawing.Point(13, 49);
+            this.rbTableTest.Location = new System.Drawing.Point(13, 349);
             this.rbTableTest.Name = "rbTableTest";
-            this.rbTableTest.Size = new System.Drawing.Size(795, 211);
+            this.rbTableTest.Size = new System.Drawing.Size(795, 202);
             this.rbTableTest.TabIndex = 1;
             this.rbTableTest.Text = "";
             // 
             // dataView
             // 
+            this.dataView.AllowUserToAddRows = false;
+            this.dataView.AllowUserToDeleteRows = false;
+            this.dataView.AllowUserToResizeColumns = false;
+            this.dataView.AllowUserToResizeRows = false;
             this.dataView.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.AllCellsExceptHeader;
             this.dataView.BackgroundColor = System.Drawing.Color.White;
             this.dataView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dataView.Location = new System.Drawing.Point(13, 328);
+            this.dataView.Location = new System.Drawing.Point(12, 28);
             this.dataView.Name = "dataView";
             this.dataView.ReadOnly = true;
             this.dataView.RowTemplate.Height = 23;
             this.dataView.Size = new System.Drawing.Size(795, 300);
             this.dataView.TabIndex = 0;
+            this.dataView.CellPainting += new System.Windows.Forms.DataGridViewCellPaintingEventHandler(this.dataView_CellPainting);
             // 
             // panel1
             // 
@@ -1140,7 +1147,7 @@ namespace WindowsFormsApplication2
             this.rtbStandard.Location = new System.Drawing.Point(7, 70);
             this.rtbStandard.Name = "rtbStandard";
             this.rtbStandard.ReadOnly = true;
-            this.rtbStandard.Size = new System.Drawing.Size(380, 252);
+            this.rtbStandard.Size = new System.Drawing.Size(380, 130);
             this.rtbStandard.TabIndex = 38;
             this.rtbStandard.Text = "";
             // 
@@ -1150,7 +1157,7 @@ namespace WindowsFormsApplication2
             this.panel16.Controls.Add(this.label22);
             this.panel16.Controls.Add(this.label23);
             this.panel16.Font = new System.Drawing.Font("微软雅黑", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.panel16.Location = new System.Drawing.Point(5, 370);
+            this.panel16.Location = new System.Drawing.Point(7, 209);
             this.panel16.Name = "panel16";
             this.panel16.Size = new System.Drawing.Size(380, 32);
             this.panel16.TabIndex = 37;
@@ -1166,7 +1173,7 @@ namespace WindowsFormsApplication2
             // label23
             // 
             this.label23.AutoSize = true;
-            this.label23.Location = new System.Drawing.Point(7, 5);
+            this.label23.Location = new System.Drawing.Point(4, 5);
             this.label23.Name = "label23";
             this.label23.Size = new System.Drawing.Size(83, 21);
             this.label23.TabIndex = 0;
@@ -1202,10 +1209,10 @@ namespace WindowsFormsApplication2
             // 
             // showItemInfo
             // 
-            this.showItemInfo.Location = new System.Drawing.Point(7, 410);
+            this.showItemInfo.Location = new System.Drawing.Point(5, 247);
             this.showItemInfo.Name = "showItemInfo";
             this.showItemInfo.ReadOnly = true;
-            this.showItemInfo.Size = new System.Drawing.Size(380, 252);
+            this.showItemInfo.Size = new System.Drawing.Size(380, 289);
             this.showItemInfo.TabIndex = 0;
             this.showItemInfo.Text = "";
             // 
@@ -1623,12 +1630,21 @@ namespace WindowsFormsApplication2
             this.menuStrip1.TabIndex = 5;
             this.menuStrip1.Text = "menuStrip1";
             // 
+            // keyTableItemList
+            // 
+            this.keyTableItemList.FormattingEnabled = true;
+            this.keyTableItemList.Location = new System.Drawing.Point(113, 331);
+            this.keyTableItemList.Name = "keyTableItemList";
+            this.keyTableItemList.Size = new System.Drawing.Size(121, 29);
+            this.keyTableItemList.TabIndex = 7;
+            this.keyTableItemList.SelectedIndexChanged += new System.EventHandler(this.keyTableItemList_SelectedIndexChanged);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.SteelBlue;
-            this.ClientSize = new System.Drawing.Size(1277, 936);
+            this.ClientSize = new System.Drawing.Size(1277, 750);
             this.Controls.Add(this.plTableTest);
             this.Controls.Add(this.plTOC);
             this.Controls.Add(this.plKeyWord);
@@ -1845,6 +1861,7 @@ namespace WindowsFormsApplication2
         private System.Windows.Forms.Label label22;
         private System.Windows.Forms.Label label23;
         private System.Windows.Forms.RichTextBox rtbStandard;
+        private System.Windows.Forms.ComboBox keyTableItemList;
     }
 }
 

@@ -19,7 +19,7 @@ namespace WindowsFormsApplication2
         private string tests = "";//存储所有keyWord后面的数字信息及页行信息
         private ArrayList list = new ArrayList();//存储关键字的页行信息
         private string[] keyList = { "居住用地", "公共管理与公共服务设施用地", "商业服务业设施用地", "工业用地", "仓储物流用地", "道路与交通设施用地", "公用设施用地", "绿地与广场用地" };
-        private int[] countNumber=new int[8];
+
         public KeyWord(string text)
         {
 
@@ -54,10 +54,10 @@ namespace WindowsFormsApplication2
             testWord.Selection.HomeKey(WdUnits.wdStory, Type.Missing);
             return s;
         }
-        private void getCountNumber(Application testWord)//暂定private testDoc提取richBox内容
+        private void getCountNumber(Application testWord, int[] countNumber,List<string>keyItemList)//暂定private testDoc提取richBox内容
         {
             int i = 0;
-            foreach (string keyWord in keyList)
+            foreach (string keyWord in keyItemList)
             {
                 testWord.Selection.Find.Text = keyWord;//查询的文字
                 Selection currentSelect = testWord.Selection;
@@ -105,21 +105,22 @@ namespace WindowsFormsApplication2
 
             }
         }
-        private string generateRichString(Application testWord)
+        private string generateRichString(Application testWord,List<string>keyItemList)
         {
             string s = "";
-            foreach(string keyWord in keyList)
+            foreach(string keyWord in keyItemList)
             {
                 s += abstarctRichBoxString(keyWord, testWord); 
             }
             return s;
         }
-        public void highLightRichString(RichTextBox rbTableTest, Application testWord, Document doc)
+        public void highLightRichString(RichTextBox rbTableTest, Application testWord, Document doc,List<string>keyItemList)
         {
             doc.Activate();
             testWord.Selection.HomeKey(WdUnits.wdStory, Type.Missing);
-            string richString = generateRichString(testWord);
-            getCountNumber(testWord);
+            string richString = generateRichString(testWord,keyItemList);
+            int[] countNumber = new int[keyItemList.Count];
+            getCountNumber(testWord,countNumber,keyItemList);
             rbTableTest.Clear();
             if (richString == "")
             {
@@ -132,7 +133,8 @@ namespace WindowsFormsApplication2
             }
             int i = 0;
             int sumLength = 0;//记录标识的绝对位置
-            foreach (string keyWord in keyList)
+            
+            foreach (string keyWord in keyItemList)
             {
                 int length = keyWord.Length;
                 int k = richString.IndexOf(keyWord);
