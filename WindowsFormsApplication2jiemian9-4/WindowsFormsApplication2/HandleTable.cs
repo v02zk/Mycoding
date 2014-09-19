@@ -80,7 +80,7 @@ namespace WindowsFormsApplication2
                 location++;
             }
             compareBox.Text = compareResult;
-            //setLableText(right, error, missing);
+            setLableText(right, error, missing);
 
             generateTreeView(regTreeList, regTabaleTitleTreeView);
 

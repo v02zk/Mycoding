@@ -68,13 +68,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CalculateTable.cs" />
+    <Compile Include="Class1.cs" />
     <Compile Include="CustomizeForm.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="CustomizeForm.Designer.cs">
       <DependentUpon>CustomizeForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="DGVOper.cs" />
     <Compile Include="FullTextLookUp.cs" />
     <Compile Include="HandleTable.cs" />
     <Compile Include="HandleWaitingForm.cs" />
